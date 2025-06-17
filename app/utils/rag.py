@@ -4,7 +4,7 @@ from langchain.vectorstores import Chroma
 from langchain.embeddings import HuggingFaceEmbeddings
 
 llm=Ollama(model='llama3')
-embedding=HuggingFaceEmbeddings(model="sentence-transformers/all-MiniLM-L6-v2")
+embedding=HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 vectorstore=Chroma(persitant_directory="./chroma_db",embedding_function=embedding)
 
 def get_response(query:str,role:str):
