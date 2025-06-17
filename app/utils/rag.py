@@ -1,11 +1,11 @@
-from langchain_community.llms import Ollama
+from langchain_ollama import OllamaLLM
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_chroma import Chroma
 from langchain.chains import RetrievalQA
-from langchain.vectorstores import Chroma
-from langchain.embeddings import HuggingFaceEmbeddings
 
-llm=Ollama(model='llama3')
+llm=OllamaLLM(model='llama3')
 embedding=HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-vectorstore=Chroma(persitant_directory="./chroma_db",embedding_function=embedding)
+vectorstore=Chroma(persist_directory="./chroma_db",embedding_function=embedding)
 
 def get_response(query:str,role:str):
     retriever=vectorstore.as_retreiver(search_kwargs={"k":3,"filter":{"role":role}})
