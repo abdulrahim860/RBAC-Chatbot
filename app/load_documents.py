@@ -3,7 +3,7 @@ from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-loader=DirectoryLoader("resources:",glob="**/*.txt")
+loader=DirectoryLoader("resources/data",glob="**/*.md")
 documents=loader.load()
 
 splitter=RecursiveCharacterTextSplitter(chunk_size=500,chunk_overlap=50)
