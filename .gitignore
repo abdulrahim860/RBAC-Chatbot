@@ -6,10 +6,12 @@ dist/
 wheels/
 *.egg-info
 *.sqlite3
+rbac
+query
 
 # Virtual environments
 .venv
 .idea/ 
 *.lock
-resources/vectorstore
+resources/vector_store
 .env
