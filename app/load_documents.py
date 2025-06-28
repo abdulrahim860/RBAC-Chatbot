@@ -1,17 +1,39 @@
 from langchain_community.document_loaders import DirectoryLoader
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_community.vectorstores import Chroma
+from langchain_huggingface import HuggingFaceEmbeddings  
+from langchain_chroma import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-loader=DirectoryLoader("resources/data",glob="**/*.md")
-documents=loader.load()
+loader = DirectoryLoader("resources/data", glob="**/*.md")
+documents = loader.load()
 
-splitter=RecursiveCharacterTextSplitter(chunk_size=500,chunk_overlap=50)
-chunks=splitter.split_documents(documents)
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=1000,
+    chunk_overlap=100,
+    separators=["\n### ", "\n## ", "\n# ", "\n\n", "\n", " ", ""]
 
-embedding=HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+)
+chunks = splitter.split_documents(documents)
 
-db=Chroma.from_documents(documents=chunks,embedding=embedding,persist_directory="./chroma_db")
+for chunk in chunks:
+    file_path = chunk.metadata.get('source', '').lower()
+    if "engineering" in file_path:
+        role = "engineering"
+    elif "hr" in file_path:
+        role = "hr"
+    elif "marketing" in file_path:
+        role = "marketing"
+    elif "finance" in file_path:
+        role = "finance"
+    else:
+        role = "general"
+    chunk.metadata["role"] = role
 
-db.persist()
-print("vectorstore created and persisted successfully.")
+embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
+
+db = Chroma.from_documents(
+    chunks,
+    embedding,
+    persist_directory="./chroma_db"
+)
+
+print("✅ Vectorstore created successfully!")
