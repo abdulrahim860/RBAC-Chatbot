@@ -20,7 +20,7 @@ if not st.session_state.auth:
     if st.button("Login"):
         try:
             res = requests.get(
-                "http://localhost:8000/auth/login",
+                "http://127.0.0.1:8000/auth/login",
                 auth=(st.session_state.username, st.session_state.password),
             )
             if res.status_code == 200:
@@ -49,7 +49,7 @@ else:
         with st.spinner("Generating response..."):
             try:
                 response = requests.post(
-                    "http://localhost:8000/chat/",
+                    "http://127.0.0.1:8000/chat/",
                     json={"message": user_input},
                     auth=st.session_state.auth
                 )
