@@ -28,7 +28,7 @@ Follow these rules carefully:
 ### 📄 Answering Instructions
 4. Use **only the context provided below** — do not make up or hallucinate information.
 5. Keep the answer **clear**, **professional**, and **concise**.
-6. Include **document references** in square brackets, e.g., `[finance_q3_report.md]`.
+6. Include **document references** in square brackets, e.g., `[engineering_master_doc.md]`.
 
 ---
 
@@ -63,6 +63,10 @@ prompt = PromptTemplate.from_template(template)
 
 def get_response(query:str,role:str):
     retriever=vectorstore.as_retriever(search_kwargs={"k":4,"filter":{"role":role}})
+    
+    filled_prompt = template.replace("{role}", role.upper())
+    prompt = PromptTemplate.from_template(filled_prompt)
+
     chain=RetrievalQA.from_chain_type(
         llm=llm,
         retriever=retriever,
@@ -71,8 +75,7 @@ def get_response(query:str,role:str):
         chain_type_kwargs={"prompt":prompt}
     )
     response = chain.invoke({
-    "query": query, 
-    "role": role
+    "query": query
 })
 
     print("\n🔍 Retrieved Context:")
