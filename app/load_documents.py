@@ -33,7 +33,7 @@ embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-ba
 db = Chroma.from_documents(
     chunks,
     embedding,
-    persist_directory="./chroma_db"
+    persist_directory="resources/vector_store"
 )
 
 print("✅ Vectorstore created successfully!")
