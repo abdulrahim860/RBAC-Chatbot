@@ -32,6 +32,12 @@ if not st.session_state.auth:
             st.error("Backend not reachable. Is FastAPI running?")
 else:
     st.success(f"Welcome back, {st.session_state.username}!")
+    if st.button("Logout"):
+       st.session_state.auth = None
+       st.session_state.username = ""
+       st.session_state.password = ""
+       st.session_state.chat_history = []
+       st.rerun()
 
     # Chat UI
     st.subheader("💬 Ask Your Question")
