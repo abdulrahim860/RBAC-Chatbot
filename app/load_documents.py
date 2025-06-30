@@ -1,10 +1,20 @@
-from langchain_community.document_loaders import DirectoryLoader
+from langchain_community.document_loaders import DirectoryLoader,CSVLoader
 from langchain_huggingface import HuggingFaceEmbeddings  
 from langchain_chroma import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from pathlib import Path
 
-loader = DirectoryLoader("resources/data", glob="**/*.md")
-documents = loader.load()
+md_loader = DirectoryLoader("resources/data", glob="**/*.md")
+md_documents = md_loader.load()
+
+csv_documents = []
+csv_dir = Path("resources/data")
+for csv_file in csv_dir.rglob("*.csv"):
+    loader = CSVLoader(file_path=str(csv_file))
+    csv_documents.extend(loader.load())
+
+# Combine all documents
+documents = md_documents + csv_documents
 
 splitter = RecursiveCharacterTextSplitter(
     chunk_size=1000,
