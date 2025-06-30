@@ -1,17 +1,18 @@
-from langchain_ollama import OllamaLLM
+from langchain_ollama import ChatOllama
+from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain.chains import RetrievalQA
-from langchain.prompts import PromptTemplate
 
-llm=OllamaLLM(model='llama3')
-embedding=HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
-vectorstore=Chroma(persist_directory="resources/vector_store",embedding_function=embedding)
+llm = ChatOllama(model="llama3")
 
-template = """
+embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
+vectorstore = Chroma(persist_directory="resources/vector_store", embedding_function=embedding)
+
+system_template = """
 You are an AI assistant for FinSolve Technologies, a leading FinTech company. Your job is to assist internal employees by answering questions using secure, role-specific data from company documents.
 
-You are currently responding to a user whose role is: **{role}**
+You are currently responding to a user whose role is: {role}
 
 Follow these guidelines:
 1. Answer questions based ONLY on the context provided below
@@ -23,51 +24,39 @@ Follow these guidelines:
 7. For CSV data, interpret the data as structured tables with headers and rows
    - Present tabular data in a readable format
    - If asked for specific data points, extract them precisely
+   - If a specific employee is requested, show **only that row** in a clean readable table.
    - For financial data, format numbers appropriately (e.g., currency symbols, decimal places)
 8. For Markdown data:
    - Properly interpret headers, lists, tables, and other formatting
    - Preserve the hierarchical structure when relevant to the query
    - Recognize and properly handle code blocks or technical content
 
-### 📌 Context
-Below is the relevant information retrieved for this query. Use it strictly.
-
+Context:
 {context}
-
----
-
-### ❓ Question
-{question}
-
----
-
-### 💬 Final Answer:
 """
 
-prompt = PromptTemplate.from_template(template)
+prompt = ChatPromptTemplate.from_messages([
+    SystemMessagePromptTemplate.from_template(system_template),
+    HumanMessagePromptTemplate.from_template("{question}")
+])
 
-def get_response(query:str,role:str):
-    retriever=vectorstore.as_retriever(search_kwargs={"k":4,"filter":{"role":role}})
-    
-    filled_prompt = template.replace("{role}", role.upper())
-    prompt = PromptTemplate.from_template(filled_prompt)
+def get_response(query: str, role: str):
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 5, "filter": {"role": role}})
 
-    chain=RetrievalQA.from_chain_type(
+    chain = RetrievalQA.from_chain_type(
         llm=llm,
         retriever=retriever,
         return_source_documents=True,
         chain_type="stuff",
-        chain_type_kwargs={"prompt":prompt}
+        chain_type_kwargs={
+            "prompt": prompt.partial(role=role)  
+        }
     )
-    response = chain.invoke({
-    "query": query
-})
 
+    response = chain.invoke({"query": query})
+    return response["result"].replace("\n", " ").strip()
+'''
     print("\n🔍 Retrieved Context:")
-    source_docs = response.get("source_documents", [])
-    if not source_docs:
-        print("🚫 No documents retrieved!")
-    else:
-        for i, doc in enumerate(source_docs, 1):
-            print(f"\n--- Document {i} ---\n{doc.page_content}")
-    return response['result'].replace('\n', ' ').strip() 
+    for i, doc in enumerate(response.get("source_documents", []), 1):
+        print(f"\n--- Document {i} ---\n{doc.page_content}")
+'''
