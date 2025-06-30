@@ -27,16 +27,16 @@ chunks = splitter.split_documents(documents)
 for chunk in chunks:
     file_path = chunk.metadata.get('source', '').lower()
     if "engineering" in file_path:
-        role = "engineering"
+        roles = ["engineering","C_level"]
     elif "hr" in file_path:
-        role = "hr"
+        roles = ["hr","C_level"]
     elif "marketing" in file_path:
-        role = "marketing"
+        roles = ["marketing","C_level"]
     elif "finance" in file_path:
-        role = "finance"
+        roles = ["finance","C_level"]
     else:
-        role = "general"
-    chunk.metadata["role"] = role
+        roles = ["general","C_level","employee"]
+    chunk.metadata["role"] = roles
 
 embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
 
