@@ -3,6 +3,7 @@ from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTempla
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain.chains import RetrievalQA
+from pathlib import Path
 
 llm = ChatOllama(model="llama3")
 
@@ -16,16 +17,16 @@ You are currently responding to a user whose role is: {role}
 
 Follow these guidelines:
 1. Answer questions based ONLY on the context provided below
-2. If the information isn't in the context, say "I don't have that information" - DO NOT make up answers
+2. If the information isn't in the retrieved context, say "I don't have that information" - DO NOT make up answers
 3. Keep responses professional, clear, and concise
-4. Include citations to the source documents when appropriate using [Document Title]
+4. Dont expand you answer,unless asked by user
 5. Focus on providing factual information relevant to the user's role
 6. Consider the conversation history for context
 7. For CSV data, interpret the data as structured tables with headers and rows
    - Present tabular data in a readable format
    - If asked for specific data points, extract them precisely
    - If a specific employee is requested, show **only that row** in a clean readable table.
-   - For financial data, format numbers appropriately (e.g., currency symbols, decimal places)
+   - For financial data, format numbers appropriately (e.g., currency symbols(₹), decimal places)
 8. For Markdown data:
    - Properly interpret headers, lists, tables, and other formatting
    - Preserve the hierarchical structure when relevant to the query
@@ -41,7 +42,7 @@ prompt = ChatPromptTemplate.from_messages([
 ])
 
 def get_response(query: str, role: str):
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 5, "filter": {"role": role}})
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 5, "filter": {f"role_{role}": True}})
 
     chain = RetrievalQA.from_chain_type(
         llm=llm,
@@ -54,9 +55,21 @@ def get_response(query: str, role: str):
     )
 
     response = chain.invoke({"query": query})
-    return response["result"].replace("\n", " ").strip()
-'''
+
+    answer = response["result"].replace("\n", " ").strip()
+    sources = response.get("source_documents", [])
+
+    source_names = []
+    for doc in sources:
+       source = doc.metadata.get("source", None)
+       if source:
+           filename = Path(source).name
+           source_names.append(filename)  
+
+    if source_names:
+       answer += "\n\n📄 **Sources:** " + ", ".join(set(source_names))
+
     print("\n🔍 Retrieved Context:")
     for i, doc in enumerate(response.get("source_documents", []), 1):
         print(f"\n--- Document {i} ---\n{doc.page_content}")
-'''
+    return answer

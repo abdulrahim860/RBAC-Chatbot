@@ -66,6 +66,10 @@ else:
                     auth=st.session_state.auth,
                 )
                 bot_reply = response.json().get("response", "⚠️ Unexpected error in response.")
+                sources = response.json().get("sources", [])
+                if sources:
+                   bot_reply += f"\n\n📄 **Sources:** " + ", ".join(sources)
+
             except requests.exceptions.RequestException:
                 bot_reply = "❌ Could not connect to backend."
 
