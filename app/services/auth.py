@@ -13,7 +13,7 @@ users_db: Dict[str, Dict[str, str]] = {
     "Sid": {"password": "sidpass123", "role": "marketing"},
     "Natasha": {"password": "hrpass123", "role": "hr"},
     "Rahim":{"password":"rahim123","role":"C_level"},
-    "karan":{"password":"karan123","role":"employee"}
+    "Karan":{"password":"karan123","role":"employee"}
 }
 
 def authenticate(credentials: HTTPBasicCredentials = Depends(security)):
