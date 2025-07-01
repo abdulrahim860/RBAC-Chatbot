@@ -17,8 +17,8 @@ This project implements a Retrieval Augmented Generation (RAG) based chatbot wit
 - [🔐 Role Definitions](#-role-definitions)
 - [⚙️ Setup Instructions](#️-setup-instructions)
 - [📦 Project Structure](#-project-structure)
-- [💬 Usage](#-usage)
-- [📁 Architectural Overview](#-architectural-overview)
+- [💬 Usage Example](#-usage-example)
+- [🏗️ Architectural Choices](#-architectural-choices)
 - [📄 Example Queries](#-example-queries)
 
 ---
@@ -82,8 +82,8 @@ Role assignment is determined automatically based on file path patterns in Markd
 
 4. **Setup environment variables**
    ```bash
-   OPENAI_API_KEY=your_deepseek_api_key
-   OPENAI_API_BASE=https://api.deepseek.com/v1
+   OPENAI_API_KEY=your_openrouter_api_key
+   OPENAI_API_BASE=https://openrouter.ai/api/v1
 
 5. **Build the vectorstore**
    ```bash
@@ -100,7 +100,8 @@ Role assignment is determined automatically based on file path patterns in Markd
 ---
 
 ## 📦 Project Structure
-rrbac-chatbot/
+```
+RBAC-chatbot/
 │
 ├── app/
 │   ├── main.py                     # FastAPI entry point
@@ -126,28 +127,15 @@ rrbac-chatbot/
 ├── .pyproject.toml                # (optional) Poetry config or project metadata
 ├── .python-version                # Python version lock for version managers
 └── README.md                      # Documentation
-
+```
 ---
 
-## 📄 Example Queries
-| Query                          | Role          | Result Behavior                      |
-| ------------------------------ | ------------- | ------------------------------------ |
-| "What is our Q2 revenue?"      | `finance`     | Extracts the financial data          |
-| "Hiring plan for Q3?"          | `hr`          | Fetches only HR CSV sources          |
-| "What's our API architecture?" | `engineering` | Shows relevant engineering docs      |
-| "Show marketing KPIs"          | `marketing`   | Displays only marketing data         |
-| "All team plans for Q2"        | `employee`    | Access denied or filtered summary    |
-|                                | `C_level`     | Access all department data           |
+## 💬Usage Example
 
 
 ---
 
-### Usage Example
-
-
----
-
-### 🏗️ Architectural Choices
+## 🏗️ Architectural Choices
 
 This project follows a **modular, RBAC-aware Retrieval-Augmented Generation (RAG)** architecture:
 
@@ -161,5 +149,17 @@ This project follows a **modular, RBAC-aware Retrieval-Augmented Generation (RAG
 | `.env` + Secrets      | DeepSeek API keys and sensitive config are managed via `.env` files        |
 
 📁 Documents are split, embedded, and stored only once via `build_vectorstore.py`. Chat responses are filtered **at retrieval time** using the role metadata for security and privacy.
+
+---
+
+## 📄 Example Queries
+| Query                          | Role          | Result Behavior                      |
+| ------------------------------ | ------------- | ------------------------------------ |
+| "What is our Q2 revenue?"      | `finance`     | Extracts the financial data          |
+| "Hiring plan for Q3?"          | `hr`          | Fetches only HR CSV sources          |
+| "What's our API architecture?" | `engineering` | Shows relevant engineering docs      |
+| "Show marketing KPIs"          | `marketing`   | Displays only marketing data         |
+| "All team plans for Q2"        | `employee`    | Access denied or filtered summary    |
+|                                | `C_level`     | Access all department data           |
 
 ---
