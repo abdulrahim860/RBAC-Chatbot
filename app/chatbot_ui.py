@@ -52,7 +52,7 @@ else:
         with st.chat_message(role):
             st.markdown(msg)
     
-    use_history = st.checkbox("Enable conversation history", value=True)
+    use_history = st.checkbox("Enable conversation history", value=False)
     user_input = st.chat_input("Type your question...")
     if user_input:
         with st.chat_message("user",avatar="🧑🏻‍💼"):
@@ -63,6 +63,7 @@ else:
             try:
                 chat_payload = {
                     "message": user_input,
+                    "use_history": use_history,
                 } 
                 if use_history:
                     chat_payload["history"] = [

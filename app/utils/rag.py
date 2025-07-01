@@ -2,8 +2,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
-from langchain.chains import ConversationalRetrievalChain
-from langchain.memory import ConversationBufferMemory
+from langchain.chains import RetrievalQA
 from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
@@ -44,39 +43,36 @@ Context:
 
 prompt = ChatPromptTemplate.from_messages([
     SystemMessagePromptTemplate.from_template(system_template),
-    HumanMessagePromptTemplate.from_template("{chat_history}\n\n{question}")
+    HumanMessagePromptTemplate.from_template("{question}")
 ])
 
-memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True,output_key="answer")
 
-def get_response(query: str, role: str, chat_history: list[dict] = []):
-    # Prepare retriever with role-based filtering
+def get_response(query: str, role: str, chat_history: list[dict] = [], use_history: bool = True):
     retriever = vectorstore.as_retriever(search_kwargs={"k": 5, "filter": {f"role_{role}": True}})
-    
-    # Apply system prompt with role context
     prompt_with_role = prompt.partial(role=role)
-    
-    # Set up memory and preload last 3 chat turns
 
-    for turn in chat_history[-3:]:
-        memory.chat_memory.add_user_message(turn["user"])
-        memory.chat_memory.add_ai_message(turn["ai"])
+    # Format manual chat history
+    formatted_history = ""
+    if use_history and chat_history:
+        for turn in chat_history[-3:]:
+            formatted_history += f"User: {turn['user']}\nAI: {turn['ai']}\n"
 
-    # Build the conversational chain
-    chain = ConversationalRetrievalChain.from_llm(
+    # Combine history + question
+    full_input = f"{formatted_history.strip()}\n\n{query}".strip()
+
+    chain = RetrievalQA.from_chain_type(
         llm=llm,
         retriever=retriever,
-        memory=memory,
-        return_source_documents=True,
-        combine_docs_chain_kwargs={"prompt": prompt_with_role},
-        output_key="answer"
+        chain_type="stuff",
+        chain_type_kwargs={"prompt": prompt_with_role},
+        return_source_documents=True
     )
 
-    # Invoke the chain with user question
-    response = chain.invoke({"question": query})
+    full_input = f"{formatted_history.strip()}\n\n{query}".strip()
+    response = chain.invoke({"query": full_input})
 
-    # Clean up and format the answer
-    answer = response["answer"].strip()
+
+    answer = response["result"].strip()
     sources = response.get("source_documents", [])
 
     source_names = []
@@ -96,6 +92,6 @@ def get_response(query: str, role: str, chat_history: list[dict] = []):
         print(f"\n--- Document {i} ---\n{doc.page_content}")
 
     return {
-    "answer": answer,
-    "sources": list(set(source_names))
-}
+        "answer": answer,
+        "sources": sorted(set(source_names))
+    }
