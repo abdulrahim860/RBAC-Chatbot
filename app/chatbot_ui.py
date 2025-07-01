@@ -51,7 +51,8 @@ else:
     for role, msg in st.session_state.chat_history:
         with st.chat_message(role):
             st.markdown(msg)
-
+    
+    use_history = st.checkbox("Enable conversation history", value=True)
     user_input = st.chat_input("Type your question...")
     if user_input:
         with st.chat_message("user",avatar="🧑🏻‍💼"):
@@ -60,9 +61,19 @@ else:
 
         with st.spinner("Generating response..."):
             try:
+                chat_payload = {
+                    "message": user_input,
+                } 
+                if use_history:
+                    chat_payload["history"] = [
+                        {"user": st.session_state.chat_history[i][1], "ai": st.session_state.chat_history[i+1][1]}
+                        for i in range(0, len(st.session_state.chat_history) - 1, 2)
+                        if st.session_state.chat_history[i][0] == "user"
+                    ]
+
                 response = requests.post(
                     "http://127.0.0.1:8000/chat/",
-                    json={"message": user_input},
+                    json=chat_payload,
                     auth=st.session_state.auth,
                 )
                 bot_reply = response.json().get("response", "⚠️ Unexpected error in response.")
