@@ -2,14 +2,15 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
-from langchain.chains import RetrievalQA
+from langchain.chains import ConversationalRetrievalChain
+from langchain.memory import ConversationBufferMemory
 from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
 
 llm = ChatOpenAI(model="deepseek/deepseek-r1-0528:free")
 
-embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
+embedding = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5")
 vectorstore = Chroma(persist_directory="resources/vector_store", embedding_function=embedding)
 
 system_template = """
@@ -20,7 +21,7 @@ You are currently responding to a user whose role is: {role}
 Follow these guidelines:
 1. Answer questions based ONLY on the context provided below
 2. If the information isn't in the retrieved context, say "I don't have that information" - DO NOT make up answers
-3. Keep responses professional, clear, and concise
+3. Provide a clear, concise, and accurate response. Use bullet points, headers, or tables.Justify and format the content properly.Start the next point on next line and keep 2 line as space between the paragraph
 4. Dont expand you answer,unless asked by user
 5. Focus on providing factual information relevant to the user's role
 6. Consider the conversation history for context
@@ -33,6 +34,9 @@ Follow these guidelines:
    - Properly interpret headers, lists, tables, and other formatting
    - Preserve the hierarchical structure when relevant to the query
    - Recognize and properly handle code blocks or technical content
+9. If the document is technical (Markdown, CSV):  
+   - Parse code blocks and tables accurately.  
+   - Display data rows cleanly and clearly.
 
 Context:
 {context}
@@ -40,44 +44,60 @@ Context:
 
 prompt = ChatPromptTemplate.from_messages([
     SystemMessagePromptTemplate.from_template(system_template),
-    HumanMessagePromptTemplate.from_template("{question}")
+    HumanMessagePromptTemplate.from_template("{chat_history}\n\n{question}")
 ])
 
-def get_response(query: str, role: str):
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 5, "filter": {f"role_{role}": True}})
+memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True,output_key="answer")
 
-    chain = RetrievalQA.from_chain_type(
+def get_response(query: str, role: str, chat_history: list[dict] = []):
+    # Prepare retriever with role-based filtering
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 5, "filter": {f"role_{role}": True}})
+    
+    # Apply system prompt with role context
+    prompt_with_role = prompt.partial(role=role)
+    
+    # Set up memory and preload last 3 chat turns
+
+    for turn in chat_history[-3:]:
+        memory.chat_memory.add_user_message(turn["user"])
+        memory.chat_memory.add_ai_message(turn["ai"])
+
+    # Build the conversational chain
+    chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         retriever=retriever,
+        memory=memory,
         return_source_documents=True,
-        chain_type="stuff",
-        chain_type_kwargs={
-            "prompt": prompt.partial(role=role)  
-        }
+        combine_docs_chain_kwargs={"prompt": prompt_with_role},
+        output_key="answer"
     )
 
-    response = chain.invoke({"query": query})
+    # Invoke the chain with user question
+    response = chain.invoke({"question": query})
 
-    answer = response["result"].replace("\n", " ").strip()
+    # Clean up and format the answer
+    answer = response["answer"].replace("\n", " ").strip()
     sources = response.get("source_documents", [])
 
     source_names = []
     for doc in sources:
-       source_path = doc.metadata.get("source", None)
-       if source_path:
-          path_obj = Path(source_path)
-          if len(path_obj.parts) >= 2:
-               folder = path_obj.parts[-2]
-               filename = path_obj.name
-               source_names.append(f"{folder}/{filename}")
-          else:
-              source_names.append(path_obj.name)
-
-
-    if source_names:
-       answer += "\n\n📄 **Sources:** " + ", ".join(set(source_names))
+        source_path = doc.metadata.get("source", None)
+        if source_path:
+            path_obj = Path(source_path)
+            if len(path_obj.parts) >= 2:
+                folder = path_obj.parts[-2]
+                filename = path_obj.name
+                source_names.append(f"{folder}/{filename}")
+            else:
+                source_names.append(path_obj.name)
 
     print("\n🔍 Retrieved Context:")
-    for i, doc in enumerate(response.get("source_documents", []), 1):
+    for i, doc in enumerate(sources, 1):
         print(f"\n--- Document {i} ---\n{doc.page_content}")
-    return answer
+
+    return {
+    "answer": answer,
+    "sources": list(set(source_names))
+}
+
+

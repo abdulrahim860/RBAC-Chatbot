@@ -7,4 +7,8 @@ router = APIRouter()
 
 @router.post("/")
 def chat(req: ChatRequest, user=Depends(authenticate)):
-    return {"response": get_response(req.message, user["role"])}
+    result = get_response(req.message, user["role"])
+    return {
+        "response": result["answer"],
+        "sources": result["sources"]
+    }
