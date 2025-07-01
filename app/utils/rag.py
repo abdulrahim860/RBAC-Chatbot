@@ -1,11 +1,13 @@
-from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain.chains import RetrievalQA
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()
 
-llm = ChatOllama(model="llama3")
+llm = ChatOpenAI(model="deepseek/deepseek-r1-0528:free")
 
 embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
 vectorstore = Chroma(persist_directory="resources/vector_store", embedding_function=embedding)
@@ -61,10 +63,16 @@ def get_response(query: str, role: str):
 
     source_names = []
     for doc in sources:
-       source = doc.metadata.get("source", None)
-       if source:
-           filename = Path(source).name
-           source_names.append(filename)  
+       source_path = doc.metadata.get("source", None)
+       if source_path:
+          path_obj = Path(source_path)
+          if len(path_obj.parts) >= 2:
+               folder = path_obj.parts[-2]
+               filename = path_obj.name
+               source_names.append(f"{folder}/{filename}")
+          else:
+              source_names.append(path_obj.name)
+
 
     if source_names:
        answer += "\n\n📄 **Sources:** " + ", ".join(set(source_names))
