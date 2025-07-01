@@ -1,18 +1,13 @@
+# build_vectorstore.py
+
 from langchain_community.document_loaders import DirectoryLoader, CSVLoader
-from langchain_huggingface import HuggingFaceEmbeddings  
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from pathlib import Path
 from app.utils.access_control import assign_roles
 
-# Singleton cache for Chroma instance
-_vectorstore = None
-
-def get_vectorstore():
-    global _vectorstore
-    if _vectorstore is not None:
-        return _vectorstore
-
+def build_vectorstore():
     # Load Markdown files
     md_loader = DirectoryLoader("resources/data", glob="**/*.md")
     md_documents = md_loader.load()
@@ -30,7 +25,7 @@ def get_vectorstore():
     # Combine all documents
     documents = md_documents + csv_documents
 
-    # Split documents
+    # Split documents into chunks
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
         chunk_overlap=100,
@@ -38,23 +33,21 @@ def get_vectorstore():
     )
     chunks = splitter.split_documents(documents)
 
-    # Assign role-based metadata
+    # Assign role-based access
     for chunk in chunks:
         file_path = chunk.metadata.get('source', '')
         role_flags = assign_roles(file_path)
         chunk.metadata.update(role_flags)
 
-    # Create vectorstore
+    # Create and persist vectorstore
     embedding = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5")
-    _vectorstore = Chroma.from_documents(
+    Chroma.from_documents(
         chunks,
         embedding,
         persist_directory="resources/vector_store"
     )
 
-    print("✅ Vectorstore created successfully!")
-    return _vectorstore
+    print("✅ Vectorstore created and saved to disk!")
 
-# Trigger once (optional if you want to run as script)
 if __name__ == "__main__":
-    get_vectorstore()
+    build_vectorstore()

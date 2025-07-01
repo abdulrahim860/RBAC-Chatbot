@@ -4,7 +4,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain.chains import RetrievalQA
 from pathlib import Path
-from app.utils.load_documents import get_vectorstore
+from app.utils.load_vectorstore import get_vectorstore
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -59,7 +59,6 @@ def get_response(query: str, role: str, chat_history: list[dict] = [], use_histo
             formatted_history += f"User: {turn['user']}\nAI: {turn['ai']}\n"
 
     # Combine history + question
-    full_input = f"{formatted_history.strip()}\n\n{query}".strip()
 
     chain = RetrievalQA.from_chain_type(
         llm=llm,
