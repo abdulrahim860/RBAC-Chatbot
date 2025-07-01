@@ -1,5 +1,3 @@
-# build_vectorstore.py
-
 from langchain_community.document_loaders import DirectoryLoader, CSVLoader
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
@@ -7,6 +5,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from pathlib import Path
 from app.utils.access_control import assign_roles
 
+# Function to build and persist a vectorstore from Markdown and CSV files
 def build_vectorstore():
     # Load Markdown files
     md_loader = DirectoryLoader("resources/data", glob="**/*.md")
@@ -22,7 +21,7 @@ def build_vectorstore():
             doc.metadata["source"] = str(csv_file)
         csv_documents.extend(docs)
 
-    # Combine all documents
+    # Merge Markdown and CSV documents
     documents = md_documents + csv_documents
 
     # Split documents into chunks

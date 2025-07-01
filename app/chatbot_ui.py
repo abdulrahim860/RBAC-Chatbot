@@ -34,6 +34,7 @@ if not st.session_state.auth:
 
     if login_clicked:
         try:
+            # Send login request to FastAPI backend            
             response = requests.get(
                 "http://127.0.0.1:8000/auth/login",
                 auth=(username, password),
@@ -49,6 +50,7 @@ if not st.session_state.auth:
         except requests.exceptions.RequestException:
             st.error("❌ Backend not reachable. Is FastAPI running?")
 else:
+    # Chat interface for authenticated users
     st.success(f"Welcome back, {st.session_state.username}! 👤 Role: {st.session_state.role}")
     st.subheader("💬 Chat with FinSolve")
 
@@ -56,11 +58,14 @@ else:
         with st.chat_message(role):
             st.markdown(msg)
 
+    # Checkbox to enable or disable history
     use_history = st.checkbox("Enable conversation history", value=False)
     user_input = st.chat_input("Type your question...")
     if user_input:
         with st.chat_message("user", avatar="🧑🏻‍💼"):
             st.markdown(user_input)
+
+        # Store user message in session history
         st.session_state.chat_history.append(("user", user_input))
 
         with st.spinner("Generating response..."):
@@ -69,6 +74,8 @@ else:
                     "message": user_input,
                     "use_history": use_history,
                 }
+
+                # Add history if enabled and available
                 if use_history:
                     chat_payload["history"] = [
                         {"user": st.session_state.chat_history[i][1], "ai": st.session_state.chat_history[i + 1][1]}
@@ -76,11 +83,14 @@ else:
                         if st.session_state.chat_history[i][0] == "user"
                     ]
 
+                # Send request to FastAPI /chat endpoint
                 response = requests.post(
                     "http://127.0.0.1:8000/chat/",
                     json=chat_payload,
                     auth=st.session_state.auth,
                 )
+                
+                # Parse response message and source documents
                 bot_reply = response.json().get("response", "⚠️ Unexpected error in response.")
                 sources = response.json().get("sources", [])
                 if sources:

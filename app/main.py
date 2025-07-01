@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Import your routers
+# Import authentication and chat routers
 from app.services.auth import router as auth_router
 from app.services.chat import router as chat_router
 
@@ -25,7 +25,7 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(chat_router, prefix="/chat", tags=["Chat"])
 
-# Health-check route (optional) to quickly verify the service is up
+# Define a simple route to check if the backend is running
 @app.get("/", tags=["Health Check"])
 def health_check():
     return {"status": "ok"}

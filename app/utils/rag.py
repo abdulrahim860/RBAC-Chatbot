@@ -1,4 +1,4 @@
-from langchain_ollama import OllamaLLM
+from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
@@ -6,9 +6,10 @@ from langchain.chains import RetrievalQA
 from pathlib import Path
 from app.utils.load_vectorstore import get_vectorstore
 from dotenv import load_dotenv
+
 load_dotenv()
 
-llm = OllamaLLM(model="llama3")
+llm = ChatOpenAI(model="deepseek/deepseek-r1-0528:free")
 
 embedding = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5")
 vectorstore = get_vectorstore()
@@ -47,19 +48,17 @@ prompt = ChatPromptTemplate.from_messages([
     HumanMessagePromptTemplate.from_template("{question}")
 ])
 
-
+# Core function to handle user query, role, and optional chat history
 def get_response(query: str, role: str, chat_history: list[dict] = [], use_history: bool = True):
     retriever = vectorstore.as_retriever(search_kwargs={"k": 5, "filter": {f"role_{role}": True}})
     prompt_with_role = prompt.partial(role=role)
 
-    # Format manual chat history
     formatted_history = ""
     if use_history and chat_history:
         for turn in chat_history[-3:]:
             formatted_history += f"User: {turn['user']}\nAI: {turn['ai']}\n"
 
-    # Combine history + question
-
+    # Create retrieval-based QA chain using the selected LLM and retriever
     chain = RetrievalQA.from_chain_type(
         llm=llm,
         retriever=retriever,
@@ -71,10 +70,10 @@ def get_response(query: str, role: str, chat_history: list[dict] = [], use_histo
     full_input = f"{formatted_history.strip()}\n\n{query}".strip()
     response = chain.invoke({"query": full_input})
 
-
     answer = response["result"].strip()
     sources = response.get("source_documents", [])
 
+    # Prepare readable list of source document names
     source_names = []
     for doc in sources:
         source_path = doc.metadata.get("source", None)
