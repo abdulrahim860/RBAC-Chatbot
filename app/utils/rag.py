@@ -76,7 +76,7 @@ def get_response(query: str, role: str, chat_history: list[dict] = []):
     response = chain.invoke({"question": query})
 
     # Clean up and format the answer
-    answer = response["answer"].replace("\n", " ").strip()
+    answer = response["answer"].strip()
     sources = response.get("source_documents", [])
 
     source_names = []
@@ -99,5 +99,3 @@ def get_response(query: str, role: str, chat_history: list[dict] = []):
     "answer": answer,
     "sources": list(set(source_names))
 }
-
-

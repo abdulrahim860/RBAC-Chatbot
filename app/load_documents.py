@@ -33,7 +33,7 @@ for chunk in chunks:
     role_flags = assign_roles(file_path)
     chunk.metadata.update(role_flags)
 
-embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
+embedding = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5")
 
 db = Chroma.from_documents(
     chunks,
