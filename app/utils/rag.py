@@ -1,16 +1,17 @@
-from langchain_openai import ChatOpenAI
+from langchain_ollama import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain.chains import RetrievalQA
 from pathlib import Path
+from app.utils.load_documents import get_vectorstore
 from dotenv import load_dotenv
 load_dotenv()
 
-llm = ChatOpenAI(model="deepseek/deepseek-r1-0528:free")
+llm = OllamaLLM(model="llama3")
 
 embedding = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5")
-vectorstore = Chroma(persist_directory="resources/vector_store", embedding_function=embedding)
+vectorstore = get_vectorstore()
 
 system_template = """
 You are an AI assistant for FinSolve Technologies, a leading FinTech company. Your job is to assist internal employees by answering questions using secure, role-specific data from company documents.
