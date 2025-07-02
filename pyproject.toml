@@ -1,9 +1,37 @@
 [project]
-name = "ds-rpc-01"
+name = "RBAC-Chatbot"
 version = "0.1.0"
-description = "Starter project for the RPC-01: Internal Chatbot with Role Based Access Control"
+description = "Internal RAG-based Chatbot with Role-Based Access Control for FinSolve Technologies"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11.9"
+
 dependencies = [
     "fastapi[standard]>=0.115.12",
+    "uvicorn>=0.34.0",
+    "streamlit>=1.46.0",
+    "langchain>=0.3.26",
+    "langchain-core>=0.3.66",
+    "langchain-community>=0.3.26",
+    "langchain-openai>=0.3.25",
+    "langchain-huggingface>=0.3.0",
+    "langchain-chroma>=0.2.4",
+    "langchain-text-splitters>=0.3.8",
+    "chromadb>=1.0.13",
+    "faiss-cpu>=1.11.0",
+    "sentence-transformers>=4.1.0",
+    "huggingface-hub>=0.33.1",
+    "python-dotenv>=1.0.0",
+    "bcrypt>=4.0.0",
+    "pydantic>=2.11.0",
+    "pydantic-settings>=2.0.0",
+    "requests>=2.32.0",
+    "pandas>=2.3.0",
+    "markdown>=3.8.0",
+    "beautifulsoup4>=4.13.0",
+    "lxml>=5.4.0",
+    "httpx>=0.28.0",
+    "python-magic>=0.4.27",
+    "PyYAML>=6.0.0",
+    "rich>=14.0.0",
+    "tqdm>=4.67.0",
 ]
