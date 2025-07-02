@@ -17,8 +17,8 @@ This project implements a Retrieval Augmented Generation (RAG) based chatbot wit
 - [🔐 Role Definitions](#-role-definitions)
 - [⚙️ Setup Instructions](#️-setup-instructions)
 - [📦 Project Structure](#-project-structure)
-- [💬 Usage Example](#-usage-example)
-- [🏗️ Architectural Choices](#-architectural-choices)
+- [💬 Usage Example](#usage-example)
+- [🏗️ Architectural Choices](#architectural-choices)
 - [📄 Example Queries](#-example-queries)
 
 ---
