@@ -38,6 +38,7 @@ Follow these guidelines:
 9. If the document is technical (Markdown, CSV):  
    - Parse code blocks and tables accurately.  
    - Display data rows cleanly and clearly.
+10. If the user ask question reated to other departments , return "You don't have the access"
 
 Context:
 {context}
