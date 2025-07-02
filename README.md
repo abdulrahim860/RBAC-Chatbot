@@ -132,6 +132,9 @@ RBAC-chatbot/
 
 ## 💬Usage Example
 
+Here’s how the RBAC Chatbot works in action:
+
+![Usage Demo](assets/demo.gif)
 
 ---
 
