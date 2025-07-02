@@ -18,7 +18,7 @@ This project implements a Retrieval Augmented Generation (RAG) based chatbot wit
 - [⚙️ Setup Instructions](#️-setup-instructions)
 - [📦 Project Structure](#-project-structure)
 - [💬 Usage Example](#usage-example)
-- [🏗️ Architectural Choices](#architectural-choices)
+- [🏗️ Architectural Choices](#️-architectural-choices)
 - [📄 Example Queries](#-example-queries)
 
 ---
@@ -163,6 +163,6 @@ This project follows a **modular, RBAC-aware Retrieval-Augmented Generation (RAG
 | "What's our API architecture?" | `engineering` | Shows relevant engineering docs      |
 | "Show marketing KPIs"          | `marketing`   | Displays only marketing data         |
 | "All team plans for Q2"        | `employee`    | Access denied or filtered summary    |
-|                                | `C_level`     | Access all department data           |
+| "Who is our cloud provider"    | `C_level`     | Access all department data           |
 
 ---
