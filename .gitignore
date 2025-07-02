@@ -9,7 +9,6 @@ wheels/
 rbac
 query
 stop
-assets
 
 # Virtual environments
 .venv
