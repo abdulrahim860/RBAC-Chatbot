@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
-from app.services.auth import authenticate
-from app.schemas.ChatRequest import ChatRequest
-from app.utils.rag import get_response
+from backend.services.auth import authenticate
+from backend.schemas.ChatRequest import ChatRequest
+from backend.utils.rag import get_response
 
 # Initialize a router for handling chat-related API routes
 router = APIRouter()

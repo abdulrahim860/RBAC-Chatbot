@@ -4,10 +4,12 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain.chains import RetrievalQA
 from pathlib import Path
-from app.utils.load_vectorstore import get_vectorstore
+from backend.utils.load_vectorstore import get_vectorstore
 from dotenv import load_dotenv
+import os
 
-load_dotenv()
+env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
+load_dotenv(env_path)
 
 llm = ChatOpenAI(model="deepseek/deepseek-r1-0528:free")
 
