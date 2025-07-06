@@ -14,7 +14,6 @@ load_dotenv(env_path)
 llm = ChatOpenAI(model="deepseek/deepseek-r1-0528:free")
 
 embedding = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5")
-vectorstore = get_vectorstore()
 
 system_template = """
 You are an AI assistant for FinSolve Technologies, a leading FinTech company. Your job is to assist internal employees by answering questions using secure, role-specific data from company documents.
@@ -53,6 +52,7 @@ prompt = ChatPromptTemplate.from_messages([
 
 # Core function to handle user query, role, and optional chat history
 def get_response(query: str, role: str, chat_history: list[dict] = [], use_history: bool = True):
+    vectorstore = get_vectorstore()
     retriever = vectorstore.as_retriever(search_kwargs={"k": 5, "filter": {f"role_{role}": True}})
     prompt_with_role = prompt.partial(role=role)
 

@@ -1,5 +1,6 @@
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
+from chromadb.config import Settings as ClientSettings
 from pathlib import Path
 
 # Module-level variable to cache the vectorstore instance
@@ -14,6 +15,10 @@ def get_vectorstore():
         vectorstore_dir = base_dir / "resources" / "vector_store"
         _vectorstore = Chroma(
             persist_directory=str(vectorstore_dir),
-            embedding_function=embedding
+            embedding_function=embedding,
+            collection_name="default",  
+            client_settings=ClientSettings(anonymized_telemetry=False)
         )
+        collection = _vectorstore._client.get_collection("default")
+        print("🔍 Total documents in vectorstore:", collection.count())
     return _vectorstore
