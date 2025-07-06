@@ -1,0 +1,48 @@
+# Core Frameworks
+fastapi==0.115.14
+uvicorn==0.34.3
+
+# LangChain and Components
+langchain==0.3.26
+langchain-community==0.3.26
+langchain-core==0.3.66
+langchain-openai==0.3.25
+langchain-huggingface==0.3.0
+langchain-chroma==0.2.4
+langchain-text-splitters==0.3.8
+
+# Embeddings & Vector Store
+chromadb==1.0.13
+faiss-cpu==1.11.0
+sentence-transformers==4.1.0
+huggingface-hub==0.33.1
+
+# Authentication & Security
+bcrypt==4.3.0
+python-dotenv==1.1.1
+
+# Parsing and Utilities
+pydantic==2.11.3
+pydantic-settings==2.10.1
+requests==2.32.4
+PyYAML==6.0.2
+
+# File I/O and Document Loading
+aiofiles==24.1.0
+pandas==2.3.0
+markdown==3.8.2
+beautifulsoup4==4.13.4
+lxml==5.4.0
+
+# OpenRouter / DeepSeek support
+openai==1.91.0
+httpx==0.28.1
+
+# Development Tools
+watchdog==6.0.0
+coloredlogs==15.0.1
+python-magic==0.4.27
+
+# Optional (for rich UI/CLI experience)
+rich==14.0.0
+tqdm==4.67.1
