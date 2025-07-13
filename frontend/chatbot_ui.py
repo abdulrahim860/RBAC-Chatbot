@@ -1,5 +1,11 @@
 import streamlit as st
 import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv() 
+
+BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
 
 st.set_page_config(page_title="FinSolve QueryBot", page_icon="🤖")
 
@@ -36,9 +42,8 @@ if not st.session_state.auth:
         try:
             # Send login request to FastAPI backend            
             response = requests.get(
-                "http://127.0.0.1:8000/auth/login",
+                "{BACKEND_URL}/auth/login",
                 auth=(username, password),
-                timeout=3
             )
             if response.status_code == 200:
                 st.session_state.auth = (username, password)
@@ -85,7 +90,7 @@ else:
 
                 # Send request to FastAPI /chat endpoint
                 response = requests.post(
-                    "http://127.0.0.1:8000/chat/",
+                    "{BACKEND_URL}/chat/",
                     json=chat_payload,
                     auth=st.session_state.auth,
                 )
