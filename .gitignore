@@ -9,6 +9,8 @@ wheels/
 rbac
 query
 stop
+.toml
+.streamlit
 
 # Virtual environments
 .venv
