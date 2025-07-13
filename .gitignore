@@ -11,10 +11,10 @@ query
 stop
 .toml
 .streamlit
+backend/resources/vector_store
 
 # Virtual environments
 .venv
 .idea/ 
 *.lock
-resources/vector_store
 .env
