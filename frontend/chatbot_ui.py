@@ -1,11 +1,7 @@
 import streamlit as st
 import requests
-import os
-from dotenv import load_dotenv
 
-load_dotenv() 
-
-BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
+BACKEND_URL = st.secrets.get("BACKEND_URL", "http://127.0.0.1:8000")
 
 st.set_page_config(page_title="FinSolve QueryBot", page_icon="🤖")
 
