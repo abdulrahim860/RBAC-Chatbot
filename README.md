@@ -14,13 +14,13 @@ This project implements a Retrieval Augmented Generation (RAG) based chatbot wit
 
 - [🚀 Features](#-features)
 - [🧠 Tech Stack](#-tech-stack)
-- [🔐 Role Definitions](#-role-definitions)
 - [⚙️ Setup Instructions](#️-setup-instructions)
 - [📦 Project Structure](#-project-structure)
 - [💬 Usage Example](#usage-example)
 - [🏗️ Architectural Choices](#️-architectural-choices)
+- [🔐 Role Definitions](#-role-definitions)
 - [📄 Example Queries](#-example-queries)
-
+- [🔐 Sample User Credentials](#-sample-user-credentials)
 ---
 
 ## 🚀 Features
@@ -48,21 +48,6 @@ This project implements a Retrieval Augmented Generation (RAG) based chatbot wit
 
 ---
 
-## 🔐 Role Definitions
-
-| Role       | Permissions                                  |
-|------------|----------------------------------------------|
-| `C_level`  | Access to all documents                      |
-| `engineering` | Only engineering & general documents      |
-| `finance`  | Only finance & general documents             |
-| `hr`       | Only HR & general documents                  |
-| `marketing`| Only marketing & general documents           |
-| `employee` | Only general documents                       |
-
-Role assignment is determined automatically based on file path patterns in Markdown/CSV documents.
-
----
-
 ## ⚙️ Setup Instructions
 
 1. **Clone this repo**
@@ -78,7 +63,7 @@ Role assignment is determined automatically based on file path patterns in Markd
 
 3. **Install dependencies**
    ```bash
-   pip install -r requirements.txt
+   pip install -r frontend/requirements.txt -r backend/requirements.txt
 
 4. **Setup environment variables**
    ```bash
@@ -91,11 +76,11 @@ Role assignment is determined automatically based on file path patterns in Markd
 
 6. **Start the FastAPI backend**
    ```bash
-   uvicorn app.main:app --reload
+   uvicorn backend.main:app --reload
 
 7. **Run the Streamlit frontend**
    ```bash
-   streamlit run chatbot_ui.py
+   streamlit run frontend/chatbot_ui.py
 
 ---
 
@@ -103,9 +88,12 @@ Role assignment is determined automatically based on file path patterns in Markd
 ```
 RBAC-chatbot/
 │
-├── app/
+├── backend/
+|   ├── resources/
+|   |   ├── data/                   # Markdown/CSV files for ingestion
+|   |   └── vector_store/           # To store vector embeddings  
 │   ├── main.py                     # FastAPI entry point
-|   ├── chatbot_ui.py               # Streamlit frontend interface
+|   ├── requirements.txt            # Python dependencies
 │   ├── services/
 │   │   ├── auth.py                 # User authentication logic
 │   │   └── chat.py                 # Chat endpoint using RAG
@@ -117,13 +105,10 @@ RBAC-chatbot/
 │       ├── build_vectorstore.py    # Loads and chunks documents into ChromaDB
 │       └── load_vectorstore.py     # Loads the saved vectorstore from disk
 │
-├── resources/
-│   ├── data/                       # Markdown/CSV files for ingestion
-|   └── vector_store/               # To store vector embeddings   
-│
-|
-├── requirements.txt               # Python dependencies
-├── .env                           # Environment variables (API keys etc.)
+├── frontend/
+|   ├── chatbot_ui.py               # Streamlit frontend interface
+│   └── requirements.txt            # Python dependencies
+|     
 ├── .pyproject.toml                # (optional) Poetry config or project metadata
 ├── .python-version                # Python version lock for version managers
 └── README.md                      # Documentation
@@ -155,14 +140,42 @@ This project follows a **modular, RBAC-aware Retrieval-Augmented Generation (RAG
 
 ---
 
+## 🔐 Role Definitions
+
+| Role       | Permissions                                  |
+|------------|----------------------------------------------|
+| `C_level`  | Access to all documents                      |
+| `engineering` | Only engineering & general documents      |
+| `finance`  | Only finance & general documents             |
+| `hr`       | Only HR & general documents                  |
+| `marketing`| Only marketing & general documents           |
+| `employee` | Only general documents                       |
+
+Role assignment is determined automatically based on file path patterns in Markdown/CSV documents.
+
+---
+
 ## 📄 Example Queries
 | Query                          | Role          | Result Behavior                      |
 | ------------------------------ | ------------- | ------------------------------------ |
 | "What is our Q2 revenue?"      | `finance`     | Extracts the financial data          |
-| "Hiring plan for Q3?"          | `hr`          | Fetches only HR CSV sources          |
+| "What is the salary of Ishaan patel" | `hr`    | Fetches only HR CSV sources          |
 | "What's our API architecture?" | `engineering` | Shows relevant engineering docs      |
 | "Show marketing KPIs"          | `marketing`   | Displays only marketing data         |
 | "All team plans for Q2"        | `employee`    | Access denied or filtered summary    |
 | "Who is our cloud provider"    | `C_level`     | Access all department data           |
 
 ---
+
+## 🔐 Sample User Credentials
+
+| Username | Password     | Role        |
+|----------|--------------|-------------|
+| Tony     | password123  | engineering |
+| Bruce    | securepass   | marketing   |
+| Sam      | financepass  | finance     |
+| Peter    | pete123      | engineering |
+| Sid      | sidpass123   | marketing   |
+| Natasha  | hrpass123    | hr          |
+| Rahim    | rahim123     | C_level     |
+| Karan    | karan123     | employee    |
