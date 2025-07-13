@@ -42,7 +42,7 @@ if not st.session_state.auth:
         try:
             # Send login request to FastAPI backend            
             response = requests.get(
-                "{BACKEND_URL}/auth/login",
+                f"{BACKEND_URL}/auth/login",
                 auth=(username, password),
             )
             if response.status_code == 200:
@@ -90,7 +90,7 @@ else:
 
                 # Send request to FastAPI /chat endpoint
                 response = requests.post(
-                    "{BACKEND_URL}/chat/",
+                    f"{BACKEND_URL}/chat/",
                     json=chat_payload,
                     auth=st.session_state.auth,
                 )

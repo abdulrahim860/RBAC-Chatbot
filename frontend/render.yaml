@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: RBAC-frontend
-    env: python
-    buildCommand: pip install -r frontend/requirements.txt
-    startCommand: streamlit run frontend/chatbot_ui.py --server.port 10001
-    plan: free
