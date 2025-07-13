@@ -151,8 +151,6 @@ This project follows a **modular, RBAC-aware Retrieval-Augmented Generation (RAG
 | `marketing`| Only marketing & general documents           |
 | `employee` | Only general documents                       |
 
-Role assignment is determined automatically based on file path patterns in Markdown/CSV documents.
-
 ---
 
 ## 📄 Example Queries
